@@ -92,6 +92,14 @@ export default function Home() {
           />
         </div>
 
+        {/* GIFS CENTRADOS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pt-12 mb-10 justify-items-center">
+          <img src="/gif1.gif" alt="Gif 1" className="w-full max-w-md h-auto rounded-2xl shadow-lg" />
+          <img src="/gif2.gif" alt="Gif 2" className="w-full max-w-md h-auto rounded-2xl shadow-lg" />
+          <img src="/gif3.gif" alt="Gif 3" className="w-full max-w-md h-auto rounded-2xl shadow-lg" />
+          <img src="/gif4.gif" alt="Gif 4" className="w-full max-w-md h-auto rounded-2xl shadow-lg" />
+          <img src="/gif5.gif" alt="Gif 5" className="w-full max-w-md h-auto rounded-2xl shadow-lg" />
+        </div>
         {/* PREVIEW RÁPIDA */}
         <div className="mt-16">
           <div className="flex items-center justify-between mb-4">
