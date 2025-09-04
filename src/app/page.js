@@ -55,6 +55,24 @@ export default function Home() {
           </div>
         </div>
 
+        {/* VIDEO PRESENTACIÓN */}
+        <div className="mt-12 flex justify-center">
+          <div className="relative w-full max-w-2xl rounded-3xl overflow-hidden shadow-xl border border-white/10 bg-black">
+            <video
+              src="/video.mp4"
+              controls
+              autoPlay
+              loop
+              muted
+              className="w-full h-auto object-cover"
+              poster="/video-poster.jpg"
+              style={{ aspectRatio: "16/9" }}
+            />
+            {/* Overlay moderno opcional */}
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          </div>
+        </div>
+
         {/* FEATURES */}
         <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <FeatureCard
