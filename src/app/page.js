@@ -58,17 +58,12 @@ export default function Home() {
         {/* VIDEO PRESENTACIÓN */}
         <div className="mt-12 flex justify-center">
           <div className="relative w-full max-w-2xl rounded-3xl overflow-hidden shadow-xl border border-white/10 bg-black">
-            <video
+            <VideoAuto
               src="/video.mp4"
-              controls
-              autoPlay
-              loop
-              muted
-              className="w-full h-auto object-cover"
               poster="/video-poster.jpg"
-              style={{ aspectRatio: "16/9" }}
+              className="w-full h-auto object-cover"
+              aspect="16/9"
             />
-            {/* Overlay moderno opcional */}
             <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           </div>
         </div>
@@ -94,11 +89,11 @@ export default function Home() {
 
         {/* GIFS CENTRADOS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pt-12 mb-10 justify-items-center">
-          <img src="/gif1.gif" alt="Gif 1" className="w-full max-w-md h-auto rounded-2xl shadow-lg" />
-          <img src="/gif2.gif" alt="Gif 2" className="w-full max-w-md h-auto rounded-2xl shadow-lg" />
-          <img src="/gif3.gif" alt="Gif 3" className="w-full max-w-md h-auto rounded-2xl shadow-lg" />
-          <img src="/gif4.gif" alt="Gif 4" className="w-full max-w-md h-auto rounded-2xl shadow-lg" />
-          <img src="/gif5.gif" alt="Gif 5" className="w-full max-w-md h-auto rounded-2xl shadow-lg" />
+          {["/vid1.webm","/vid2.webm","/vid3.webm","/vid4.webm","/vid5.webm"].map((v) => (
+            <div key={v} className="w-full max-w-md rounded-2xl overflow-hidden shadow-lg border border-white/10 bg-black">
+              <VideoAuto src={v} className="w-full h-auto object-cover" aspect="16/9" />
+            </div>
+          ))}
         </div>
         {/* PREVIEW RÁPIDA */}
         <div className="mt-16">
@@ -138,6 +133,27 @@ function FeatureCard({ icon, title, desc }) {
     </div>
   );
 }
+
+/* --- arriba del archivo --- */
+function VideoAuto({ src, poster, className = "", aspect = "16/9" }) {
+  return (
+    <video
+      src={src}
+      autoPlay
+      muted
+      loop
+      playsInline
+      controls={false}
+      preload="metadata"
+      poster={poster}
+      className={className}
+      style={{ aspectRatio: aspect }}
+      controlsList="nodownload noplaybackrate noremoteplayback nofullscreen"
+      disablePictureInPicture
+    />
+  )
+}
+
 
 function PreviewCard({ title, tag, icon }) {
   return (
