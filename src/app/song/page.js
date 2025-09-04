@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import { Share2, RotateCcw, LogOut, Trophy, X, Star } from "lucide-react"
 
+/* ======= Ícono de mano (para las notas del carrusel) ======= */
 function HandIcon({ active = [], size = 64 }) {
   const stroke = "currentColor"
   const baseStroke = 1.6
@@ -23,6 +24,7 @@ function HandIcon({ active = [], size = 64 }) {
   )
 }
 
+/* ======= Notas & secuencia (tu lógica de juego) ======= */
 const NOTES = [
   { id: "do",  label: "Do",  active: [1] },
   { id: "re",  label: "Re",  active: [1,2] },
@@ -47,6 +49,7 @@ const SEQ_IDS = [
 ]
 const MAX_SCORE = SEQ_IDS.length * 100
 
+/* Config carrusel */
 const SPEED_PX_S = 260
 const SPACING_PX = 124
 const HIT_X = 120
@@ -54,22 +57,35 @@ const NOTE_WIDTH = 90
 const LANE_HEIGHT = 200
 
 export default function SongPage() {
+  /* ------ Estado del juego ------ */
   const [score, setScore] = useState(0)
   const [showResults, setShowResults] = useState(false)
   const [confetti, setConfetti] = useState([])
   const [floating, setFloating] = useState([])
   const [progress, setProgress] = useState(0) // 0..1
 
+  /* ------ Carrusel refs ------ */
   const laneRef = useRef(null)
   const nodeRefs = useRef([])
   const rafRef = useRef(null)
   const lastTRef = useRef(0)
-
   const positionsRef = useRef([])
   const hitFlagsRef = useRef([])
   const nearFlagsRef = useRef([])
   const finishedRef = useRef(false)
 
+  /* ------ MediaPipe refs ------ */
+  const videoRef = useRef(null)
+  const canvasRef = useRef(null)
+  const cameraInstanceRef = useRef(null)
+  const mediaStreamRef = useRef(null)
+  const handsResultsRef = useRef(null)
+  const faceResultsRef = useRef(null)
+  const rafVisionRef = useRef(null)
+
+  /* =========================
+     Inicializa carrusel
+     ========================= */
   useEffect(() => {
     initRun()
     const onResize = () => initRun()
@@ -96,7 +112,6 @@ export default function SongPage() {
     positionsRef.current = SEQ_IDS.map((_, i) => base + i * SPACING_PX)
     hitFlagsRef.current = SEQ_IDS.map(() => false)
     nearFlagsRef.current = SEQ_IDS.map(() => false)
-
     nodeRefs.current = SEQ_IDS.map((_, i) => nodeRefs.current[i] || null)
 
     for (let i = 0; i < SEQ_IDS.length; i++) {
@@ -147,7 +162,6 @@ export default function SongPage() {
       setTimeout(() => {
         setShowResults(true)
         spawnConfetti()
-        // ⛏️ Quitamos el setProgress directo aquí; lo animaremos en un efecto al montar el modal
       }, 500)
       return
     }
@@ -155,12 +169,10 @@ export default function SongPage() {
     rafRef.current = requestAnimationFrame(loop)
   }
 
-  // 👉 Animación del anillo: cuando se abre el modal,
-  // primero fija progreso en 0, luego en el siguiente frame sube al target (doble RAF).
   useEffect(() => {
     if (!showResults) return
     const target = Math.max(0, Math.min(1, score / MAX_SCORE))
-    setProgress(0) // valor base visible
+    setProgress(0)
     const id1 = requestAnimationFrame(() => {
       const id2 = requestAnimationFrame(() => setProgress(target))
       return () => cancelAnimationFrame(id2)
@@ -182,7 +194,6 @@ export default function SongPage() {
   }
 
   const restart = () => initRun()
-
   const share = async () => {
     const text = `¡Mi puntaje fue ${score}/${MAX_SCORE} en el challenge de Jingle Bells!`
     try {
@@ -194,10 +205,166 @@ export default function SongPage() {
       }
     } catch (_) {}
   }
-
   const exit = () => { if (typeof window !== "undefined") window.history.back() }
 
-  // SVG progress circle
+  /* =========================
+     MediaPipe: video + puntos
+     ========================= */
+  useEffect(() => {
+    let stopped = false
+    let hands, faceMesh, CameraCtor
+
+    const init = async () => {
+      try {
+        // Carga dinámica (evita problemas con SSR/Turbopack)
+        const [{ Hands }, { FaceMesh }] = await Promise.all([
+          import("@mediapipe/hands"),
+          import("@mediapipe/face_mesh"),
+        ])
+
+        // camera_utils: intenta ESM, si no, UMD
+        try {
+          const mod = await import("@mediapipe/camera_utils")
+          CameraCtor = mod.Camera
+        } catch {
+          await import("@mediapipe/camera_utils/camera_utils.js")
+          CameraCtor = window.Camera
+        }
+
+        // Instancias con locateFile desde CDN (versiones estables)
+        hands = new Hands({
+          locateFile: (file) =>
+            `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`,
+        })
+        hands.setOptions({
+          maxNumHands: 2,
+          modelComplexity: 1,
+          minDetectionConfidence: 0.6,
+          minTrackingConfidence: 0.6,
+        })
+        hands.onResults((res) => {
+          handsResultsRef.current = res
+          drawOverlays()
+        })
+
+        faceMesh = new FaceMesh({
+          locateFile: (file) =>
+            `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/${file}`,
+        })
+        faceMesh.setOptions({
+          maxNumFaces: 1,
+          refineLandmarks: true,
+          minDetectionConfidence: 0.5,
+          minTrackingConfidence: 0.5,
+        })
+        faceMesh.onResults((res) => {
+          faceResultsRef.current = res
+          drawOverlays()
+        })
+
+        // Inicia cámara con camera_utils
+        const videoEl = videoRef.current
+        const cam = new CameraCtor(videoEl, {
+          onFrame: async () => {
+            if (stopped) return
+            // manda el mismo frame a ambos modelos
+            await hands.send({ image: videoEl })
+            await faceMesh.send({ image: videoEl })
+          },
+          width: 1280,
+          height: 720,
+        })
+        cameraInstanceRef.current = cam
+        await cam.start()
+      } catch (err) {
+        console.error("MediaPipe init error:", err)
+        // Fallback: getUserMedia + bucle propio si falla camera_utils
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: false })
+          mediaStreamRef.current = stream
+          const v = videoRef.current
+          v.srcObject = stream
+          await v.play()
+          const loopVision = async () => {
+            if (stopped) return
+            if (v.readyState >= 2) {
+              await hands.send({ image: v })
+              await faceMesh.send({ image: v })
+            }
+            rafVisionRef.current = requestAnimationFrame(loopVision)
+          }
+          loopVision()
+        } catch (e) {
+          console.error("Fallback getUserMedia error:", e)
+        }
+      }
+    }
+
+    const drawOverlays = () => {
+      const canvas = canvasRef.current
+      const ctx = canvas?.getContext("2d")
+      if (!ctx) return
+
+      const W = canvas.width
+      const H = canvas.height
+
+      // Fondo negro
+      ctx.clearRect(0, 0, W, H)
+      ctx.fillStyle = "black"
+      ctx.fillRect(0, 0, W, H)
+
+      // Rostro (verde)
+      const face = faceResultsRef.current
+      if (face?.multiFaceLandmarks?.length) {
+        ctx.fillStyle = "#22c55e" // verde
+        const lm = face.multiFaceLandmarks[0]
+        for (let i = 0; i < lm.length; i++) {
+          const p = lm[i]
+          const x = p.x * W
+          const y = p.y * H
+          ctx.beginPath()
+          ctx.arc(x, y, 2.2, 0, Math.PI * 2)
+          ctx.fill()
+        }
+      }
+
+      // Manos (izq azul, der amarilla)
+      const handsRes = handsResultsRef.current
+      if (handsRes?.multiHandLandmarks?.length) {
+        const list = handsRes.multiHandLandmarks
+        const handed = handsRes.multiHandedness || []
+        for (let i = 0; i < list.length; i++) {
+          const lm = list[i]
+          const label = handed[i]?.label || "" // "Left" | "Right"
+          ctx.fillStyle = label === "Left" ? "#60a5fa" : "#fbbf24" // azul / amarillo
+          for (let j = 0; j < lm.length; j++) {
+            const p = lm[j]
+            const x = p.x * W
+            const y = p.y * H
+            ctx.beginPath()
+            ctx.arc(x, y, 3.2, 0, Math.PI * 2)
+            ctx.fill()
+          }
+        }
+      }
+    }
+
+    init()
+
+    return () => {
+      stopped = true
+      try {
+        cameraInstanceRef.current?.stop?.()
+      } catch {}
+      if (rafVisionRef.current) cancelAnimationFrame(rafVisionRef.current)
+      const stream = mediaStreamRef.current
+      if (stream) {
+        stream.getTracks().forEach((t) => t.stop())
+      }
+    }
+  }, [])
+
+  /* ======= SVG anillo del modal ======= */
   const R = 56
   const CIRC = 2 * Math.PI * R
   const dash = Math.max(0, Math.min(CIRC, CIRC * (1 - progress)))
@@ -206,6 +373,7 @@ export default function SongPage() {
     <div className="min-h-screen w-full text-white bg-gradient-to-b from-[#0b0f1a] via-[#090b12] to-black relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_0%,rgba(59,130,246,0.10),transparent_60%),radial-gradient(40%_30%_at_100%_100%,rgba(16,185,129,0.10),transparent_60%)]" />
 
+      {/* Header */}
       <header className="relative z-10 px-6 pt-6 pb-2 max-w-7xl mx-auto flex items-center justify-between">
         <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Song • Jingle Bells</h1>
         <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-sm">
@@ -213,14 +381,25 @@ export default function SongPage() {
         </div>
       </header>
 
+      {/* Área de cámara (negro + puntos) */}
       <main className="relative z-10 max-w-7xl mx-auto px-6">
         <div className="w-full flex items-center justify-center py-6 md:py-8">
-          <div className="relative w-full max-w-[900px] aspect-video rounded-xl border border-white/10 shadow-inner overflow-hidden" style={{ background: "#00FF00" }}>
-            <canvas width={1920} height={1080} className="absolute inset-0 w-full h-full" style={{ background: "transparent" }} />
+          <div className="relative w-full max-w-[900px] aspect-video rounded-xl border border-white/10 shadow-inner overflow-hidden" style={{ background: "black" }}>
+            {/* video oculto (solo alimenta MediaPipe) */}
+            <video ref={videoRef} autoPlay playsInline muted className="hidden" />
+            {/* canvas de puntos */}
+            <canvas
+              ref={canvasRef}
+              width={1280}
+              height={720}
+              className="absolute inset-0 w-full h-full"
+              style={{ background: "transparent" }}
+            />
           </div>
         </div>
       </main>
 
+      {/* Carrusel inferior */}
       <section className="relative z-10 max-w-7xl mx-auto px-6 pb-24">
         <div
           ref={laneRef}
@@ -263,6 +442,7 @@ export default function SongPage() {
         </div>
       </section>
 
+      {/* Modal de resultados + confeti */}
       {showResults && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 md:pt-16">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
@@ -361,6 +541,7 @@ export default function SongPage() {
         </div>
       )}
 
+      {/* CSS extra */}
       <style jsx global>{`
         .noteItem { will-change: transform; }
         .noteItem[data-near="1"] .noteCard {

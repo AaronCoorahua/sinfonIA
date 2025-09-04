@@ -26,14 +26,14 @@ export default function Home() {
           {/* CTAs */}
           <div className="mt-8 flex flex-col sm:flex-row items-center gap-3">
             <Link
-              href="/practice"
+              href="/song"
               className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-500 px-5 py-3 text-sm font-medium transition"
             >
               <Music className="w-4 h-4" />
               Empezar a practicar
             </Link>
             <Link
-              href="/ranking"
+              href="/puntajes"
               className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 px-5 py-3 text-sm transition"
             >
               Ver ranking
@@ -100,7 +100,7 @@ export default function Home() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-medium">Explora canciones</h2>
             <Link
-              href="/songs"
+              href="/practice"
               className="text-sm text-blue-400 hover:text-blue-300 inline-flex items-center gap-1"
             >
               Ver todas <ChevronRight className="w-4 h-4" />
