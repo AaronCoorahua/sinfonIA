@@ -24,3 +24,75 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ====== SinfonIA – Paleta naranja aplicada al Authenticator ====== */
+/* Pega esto en tu globals.css (o el CSS global que ya importas) */
+
+/* ====== SinfonIA – Overrides para Authenticator ====== */
+[data-amplify-authenticator] {
+  /* Paleta primaria (naranjas) */
+  --amplify-colors-primary-10: #fff3e6;
+  --amplify-colors-primary-20: #ffe0bf;
+  --amplify-colors-primary-40: #ffc48c;
+  --amplify-colors-primary-60: #ff9d56;
+  --amplify-colors-primary-80: #e07a2f; /* base */
+  --amplify-colors-primary-90: #b85f21; /* hover fuerte */
+  --amplify-colors-primary-100: #8c4618; /* active */
+
+  /* Links tipo "Olvidé mi contraseña" */
+  --amplify-components-button-link-color: #ffb454;
+  --amplify-components-button-link-hover-color: #ffd08a;
+  --amplify-components-button-link-focus-color: #ffd08a;
+
+  /* Tabs: hover en blanco + activos en naranja */
+  --amplify-components-tabs-item-color: rgba(255, 255, 255, 0.72);
+  --amplify-components-tabs-item-hover-color: #ffffff;
+  --amplify-components-tabs-item-hover-border-color: rgba(255, 255, 255, 0.5);
+  --amplify-components-tabs-item-active-color: #ffc46b;
+  --amplify-components-tabs-item-active-border-color: #e07a2f;
+
+  /* Botón primario: forzamos TODOS los estados a la paleta naranja */
+  --amplify-components-button-primary-color: #ffffff;
+  --amplify-components-button-primary-background-color: #e07a2f;
+
+  --amplify-components-button-primary-hover-color: #ffffff;
+  --amplify-components-button-primary-hover-background-color: #c96524;
+
+  --amplify-components-button-primary-focus-color: #ffffff;
+  --amplify-components-button-primary-focus-background-color: #a85322;
+  --amplify-components-button-primary-focus-box-shadow: 0 0 0 2px
+    rgba(224, 122, 47, 0.6);
+
+  --amplify-components-button-primary-active-color: #ffffff;
+  --amplify-components-button-primary-active-background-color: #8c4618;
+
+  /* Quitar bordes en todos los estados del primario */
+  --amplify-components-button-primary-border-color: transparent;
+  --amplify-components-button-primary-hover-border-color: transparent;
+  --amplify-components-button-primary-focus-border-color: transparent;
+  --amplify-components-button-primary-active-border-color: transparent;
+
+  /* Estados “overlay” para que no vuelva al teal en modales/overlays */
+  --amplify-components-button-primary-overlay-color: #ffffff;
+  --amplify-components-button-primary-overlay-background-color: #e07a2f;
+  --amplify-components-button-primary-overlay-hover-color: #ffffff;
+  --amplify-components-button-primary-overlay-hover-background-color: #c96524;
+  --amplify-components-button-primary-overlay-focus-color: #ffffff;
+  --amplify-components-button-primary-overlay-focus-background-color: #a85322;
+  --amplify-components-button-primary-overlay-active-color: #ffffff;
+  --amplify-components-button-primary-overlay-active-background-color: #8c4618;
+
+  /* Focus de inputs a naranja */
+  --amplify-components-fieldcontrol-focus-box-shadow: 0 0 0 2px
+    rgba(224, 122, 47, 0.6);
+
+  /* Sombra de la tarjeta */
+  --amplify-components-authenticator-router-box-shadow: 0 12px 40px
+    rgba(224, 122, 47, 0.18);
+}
+
+/* Salvavidas por si algo queda cacheado: fuerza hover del primario */
+[data-amplify-authenticator] .amplify-button--primary:hover {
+  background-color: #c96524 !important;
+  color: #ffffff !important;
+}

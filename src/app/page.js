@@ -1,39 +1,50 @@
 import Link from "next/link";
-import { Music, Sparkles, Trophy, Gamepad2, Guitar, Hand, ChevronRight } from "lucide-react";
+import {
+  Music,
+  Sparkles,
+  Trophy,
+  Gamepad2,
+  Guitar,
+  Hand,
+  ChevronRight,
+  LogIn,
+} from "lucide-react";
+
+import Navbar from "../components/ui/navbar";
 
 export default function Home() {
   return (
     <main className="relative min-h-screen">
-      {/* Glow de fondo */}
-      <div className="pointer-events-none absolute left-0 right-0 top-[-120px] h-[120vh] bg-[radial-gradient(120%_100%_at_50%_0%,rgba(59,130,246,0.2),transparent_70%),radial-gradient(80%_60%_at_100%_100%,rgba(16,185,129,0.15),transparent_70%)]" />
+      <Navbar />
+      <div className="pointer-events-none absolute left-0 right-0 top-[-120px] h-[120vh] bg-[radial-gradient(120%_100%_at_50%_0%,rgba(224,122,47,0.22),transparent_70%),radial-gradient(80%_60%_at_100%_100%,rgba(242,194,97,0.18),transparent_70%)]" />
 
       <section className="relative max-w-7xl mx-auto px-6 py-16 md:py-20">
-        {/* HERO */}
         <div className="flex flex-col items-center text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-300">
-            <Sparkles className="w-4 h-4 text-yellow-300" />
+            <Sparkles className="w-4 h-4 text-[#FFC46B]" />
             Aprende jugando
           </div>
 
           <h1 className="mt-4 text-4xl md:text-5xl font-semibold tracking-tight">
-            Aprender un instrumento, <span className="text-blue-400">por fin es divertido.</span>
+            Aprender un instrumento,{" "}
+            <span className="text-[#FFC46B]">por fin es divertido.</span>
           </h1>
           <p className="mt-4 max-w-2xl text-gray-300">
-            Selecciona tu instrumento favorito, sigue señas intuitivas y supera retos. 
-            Gana puntos, desbloquea logros y compite en el ranking con la comunidad.
+            Selecciona tu instrumento favorito, sigue señas intuitivas y supera
+            retos. Gana puntos, desbloquea logros y compite en el ranking con la
+            comunidad.
           </p>
 
-          {/* CTAs */}
           <div className="mt-8 flex flex-col sm:flex-row items-center gap-3">
             <Link
-              href="/song"
-              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-500 px-5 py-3 text-sm font-medium transition"
+              href="/home"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#E07A2F] hover:bg-[#C96524] px-5 py-3 text-sm font-medium text-white transition"
             >
               <Music className="w-4 h-4" />
               Empezar a practicar
             </Link>
             <Link
-              href="/puntajes"
+              href="/ranking"
               className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 px-5 py-3 text-sm transition"
             >
               Ver ranking
@@ -41,7 +52,6 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* Mini-métricas */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-xs text-gray-400">
             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
               +100 prácticas de la comunidad
@@ -55,11 +65,10 @@ export default function Home() {
           </div>
         </div>
 
-        {/* VIDEO PRESENTACIÓN */}
         <div className="mt-12 flex justify-center">
           <div className="relative w-full max-w-2xl rounded-3xl overflow-hidden shadow-xl border border-white/10 bg-black">
             <VideoAuto
-              src="/video.mp4"
+              src="/landing/video.webm"
               poster="/video-poster.jpg"
               className="w-full h-auto object-cover"
               aspect="16/9"
@@ -68,7 +77,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* FEATURES */}
         <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <FeatureCard
             icon={<Hand className="w-6 h-6" />}
@@ -87,42 +95,69 @@ export default function Home() {
           />
         </div>
 
-        {/* GIFS CENTRADOS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pt-12 mb-10 justify-items-center">
-          {["/vid1.webm","/vid2.webm","/vid3.webm","/vid4.webm","/vid5.webm"].map((v) => (
-            <div key={v} className="w-full max-w-md rounded-2xl overflow-hidden shadow-lg border border-white/10 bg-black">
-              <VideoAuto src={v} className="w-full h-auto object-cover" aspect="16/9" />
+          {[
+            "/landing/vid1.webm",
+            "/landing/vid2.webm",
+            "/landing/vid3.webm",
+            "/landing/vid4.webm",
+            "/landing/vid5.webm",
+          ].map((v) => (
+            <div
+              key={v}
+              className="w-full max-w-md rounded-2xl overflow-hidden shadow-lg border border-white/10 bg-black"
+            >
+              <VideoAuto
+                src={v}
+                className="w-full h-auto object-cover"
+                aspect="16/9"
+              />
             </div>
           ))}
         </div>
-        {/* PREVIEW RÁPIDA */}
+
         <div className="mt-16">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-medium">Explora canciones</h2>
             <Link
-              href="/practice"
-              className="text-sm text-blue-400 hover:text-blue-300 inline-flex items-center gap-1"
+              href="/songs"
+              className="text-sm text-[#FFC46B] hover:text-[#FFD08A] inline-flex items-center gap-1"
             >
               Ver todas <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <PreviewCard title="Jingle Bells" tag="Fácil" icon={<Guitar className="w-5 h-5" />} />
-            <PreviewCard title="Perfect (Ed Sheeran)" tag="Media" icon={<Music className="w-5 h-5" />} />
-            <PreviewCard title="24K Magic" tag="Difícil" icon={<Music className="w-5 h-5" />} />
+            <PreviewCard
+              title="Jingle Bells"
+              tag="Fácil"
+              icon={<Guitar className="w-5 h-5" />}
+            />
+            <PreviewCard
+              title="Perfect (Ed Sheeran)"
+              tag="Media"
+              icon={<Music className="w-5 h-5" />}
+            />
+            <PreviewCard
+              title="24K Magic"
+              tag="Difícil"
+              icon={<Music className="w-5 h-5" />}
+            />
           </div>
         </div>
       </section>
+
+      <footer className="mt-10 border-t border-white/10 bg-black/20 py-6 text-center text-xs text-gray-500">
+        © {new Date().getFullYear()} SinfonIA. Aprende música de forma
+        divertida.
+      </footer>
     </main>
   );
 }
 
-/* ---------- Subcomponentes ---------- */
-
 function FeatureCard({ icon, title, desc }) {
   return (
-    <div className="group rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:border-white/20 hover:shadow-[0_12px_40px_-10px_rgba(59,130,246,0.35)]">
+    <div className="group rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:border-white/20 hover:shadow-[0_12px_40px_-10px_rgba(224,122,47,0.35)]">
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white">
           {icon}
@@ -134,7 +169,6 @@ function FeatureCard({ icon, title, desc }) {
   );
 }
 
-/* --- arriba del archivo --- */
 function VideoAuto({ src, poster, className = "", aspect = "16/9" }) {
   return (
     <video
@@ -151,9 +185,8 @@ function VideoAuto({ src, poster, className = "", aspect = "16/9" }) {
       controlsList="nodownload noplaybackrate noremoteplayback nofullscreen"
       disablePictureInPicture
     />
-  )
+  );
 }
-
 
 function PreviewCard({ title, tag, icon }) {
   return (
@@ -162,7 +195,7 @@ function PreviewCard({ title, tag, icon }) {
       className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] p-4 transition hover:border-white/20"
     >
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition">
-        <div className="absolute -inset-20 bg-[conic-gradient(at_top_left,_rgba(59,130,246,0.25),transparent_35%,transparent)] blur-2xl" />
+        <div className="absolute -inset-20 bg-[conic-gradient(at_top_left,_rgba(224,122,47,0.25),transparent_35%,transparent)] blur-2xl" />
       </div>
       <div className="relative flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/10">

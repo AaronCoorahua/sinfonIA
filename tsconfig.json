@@ -21,13 +21,19 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "src/app/(public)/about-us/page.js",
+    "src/app/(private)/layout.js",
+    "src/app/amplify/client.js",
+    "src/app/(private)/compete/page.js",
+    "src/components/competition/competition-form.js"
   ],
   "exclude": [
     "node_modules"
